@@ -392,9 +392,11 @@ defmodule EXGBoost.Plotting do
     ]
   end
 
-  HTTPoison.start()
-
-  @schema HTTPoison.get!("https://vega.github.io/schema/vega/v5.json").body
+  # The Vega v5 schema is vendored under priv/ so compilation is hermetic —
+  # no network fetch at compile time (was `HTTPoison.get!` against
+  # vega.github.io, which times out on slow/restricted links).
+  @schema Path.join(__DIR__, "../../priv/vega-v5.json")
+          |> File.read!()
           |> Jason.decode!()
           |> ExJsonSchema.Schema.resolve()
 
